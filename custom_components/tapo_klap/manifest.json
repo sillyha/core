@@ -1,0 +1,13 @@
+{
+  "domain": "tapo_klap",
+  "name": "tplink Tapo",
+  "version": "0.1.0",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "documentation": "https://www.home-assistant.io/integrations/<domain>",
+  "issue_tracker": "",
+  "requirements": [],
+  "dependencies": [],
+  "integration_type": "device",
+  "codeowners": ["@gh"]
+}
