@@ -28,17 +28,20 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the tapo_p100 component."""
     hass.data.setdefault(DOMAIN, {})
+    print("<async_setup>[tapo]")
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up tapo from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+    print("<async_setup_entry>[tapo] enter")
     try:
         api = await setup_tapo_api(hass, entry)
         state = (
             (await api.get_device_info()).map(lambda x: DeviceInfo(**x)).get_or_raise()
         )
+        print("state: ", state)
         if get_short_model(state.model) in SUPPORTED_HUB_DEVICE_MODEL:
             hub = TapoHub(
                 entry,
@@ -49,8 +52,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             device = TapoDevice(entry, api)
             return await device.initialize_device(hass)
     except DeviceNotSupported as error:
+        print("<async_setup_entry>[tapo] DeviceNotSupported")
         raise error
     except Exception as error:
+        print("<async_setup_entry>[tapo] ConfigEntryNotReady")
         raise ConfigEntryNotReady from error
 
 

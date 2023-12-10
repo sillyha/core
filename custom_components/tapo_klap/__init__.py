@@ -1,5 +1,4 @@
-"""
-The "tapo_klap" custom component.
+"""The "tapo_klap" custom component.
 
 Configuration:
 To use this component you will need to add the following to your configuration.yaml file.
@@ -11,6 +10,7 @@ from __future__ import annotations
 import datetime
 
 import voluptuous as vol
+from plugp100.responses.device_state import DeviceInfo
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
@@ -19,11 +19,13 @@ from homeassistant.core import (
     ServiceResponse,
     SupportsResponse,
 )
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv, entity_platform, service
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.json import JsonObjectType
 
 from .const import DOMAIN
+from ..tapo import setup_tapo_api, DeviceNotSupported
 
 '''
 ATTR_NAME = "name"
@@ -77,3 +79,36 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 '''
 
+
+async def async_setup(hass: HomeAssistant, config: dict):
+    """Set up the tapo_klap component."""
+    hass.data.setdefault(DOMAIN, {})
+    print("<async_setup>[tapo_klap]")
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up tapo_klap from a config entry."""
+    hass.data.setdefault(DOMAIN, {})
+    try:
+        api = await setup_tapo_api(hass, entry)
+        """
+        state = (
+            (await api.get_device_info()).map(lambda x: DeviceInfo(**x)).get_or_raise()
+        )
+        if get_short_model(state.model) in SUPPORTED_HUB_DEVICE_MODEL:
+            hub = TapoHub(
+                entry,
+                HubDevice(api, subscription_polling_interval_millis=30_000),
+            )
+            return await hub.initialize_hub(hass)
+        else:
+            device = TapoDevice(entry, api)
+            return await device.initialize_device(hass)
+        """
+        device = TapoDevice(entry, api)
+        return await device.initialize_device(hass)
+    except DeviceNotSupported as error:
+        raise error
+    except Exception as error:
+        raise ConfigEntryNotReady from error

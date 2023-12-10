@@ -236,10 +236,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> data_entry_flow.FlowResult:
         """Manage the options."""
+        print("<async_step_init>", "user_input: ", user_input)
         if user_input is not None:
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=self.config_entry.data | user_input
             )
+            print("<async_step_init>", "config_entry.data: ", self.config_entry.data)
             return self.async_create_entry(title="", data={})
         return self.async_show_form(
             step_id="init",
