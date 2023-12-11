@@ -22,6 +22,7 @@ from custom_components.tapo_klap.const import (
     DEFAULT_POLLING_RATE_S,
     DOMAIN,
     STEP_INIT,
+    CONF_MAC, STEP_ADVANCED_SETTINGS,
 )
 
 from custom_components.tapo_klap.errors import (
@@ -37,6 +38,7 @@ from homeassistant import (
     data_entry_flow,
 )
 from homeassistant.const import CONF_SCAN_INTERVAL
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 _LOGGER = logging.getLogger(__name__)  # __name__ 是当前模块名，当模块被直接运行时模块名为 __main__ 。
@@ -134,15 +136,18 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 device_id = device_data.device_id
                 await self.async_set_unique_id(device_id)
                 self._abort_if_unique_id_configured()
+                """Mark"""
                 self.hass.data[DOMAIN][f"{device_id}_api"] = tapo_client
 
-                config_entry_data = user_input | {
+                """user_input: host, username, password"""
+                config_entry_data = user_input | {  # 并集
                     CONF_MAC: device_data.mac,
                     CONF_SCAN_INTERVAL: DEFAULT_POLLING_RATE_S,
                     CONF_TRACK_DEVICE: user_input.pop(CONF_TRACK_DEVICE, False),
                 }
 
-                if get_short_model(device_data.model) in SUPPORTED_HUB_DEVICE_MODEL:
+                is_hub = False  # for test only
+                if is_hub:  # get_short_model(device_data.model) in SUPPORTED_HUB_DEVICE_MODEL:
                     return self.async_create_entry(
                         title=f"Tapo Hub {device_data.friendly_name}",
                         data={"is_hub": True, **config_entry_data},
@@ -218,6 +223,31 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._raise_from_tapo_exception(error)
         except (aiohttp.ClientError, Exception) as error:
             raise CannotConnect from error
+
+    async def async_step_advanced_config(
+        self, user_input: Optional[dict[str, Any]] = None
+    ) -> data_entry_flow.FlowResult:
+        errors = {}
+        if user_input is not None:
+            polling_rate = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_POLLING_RATE_S)
+            return self.async_create_entry(
+                title=self.first_step_data.state.friendly_name,
+                data=self.first_step_data.user_input | {CONF_SCAN_INTERVAL: polling_rate},
+            )
+        else:
+            return self.async_show_form(
+                step_id=STEP_ADVANCED_SETTINGS,
+                data_schema=STEP_ADVANCED_CONFIGURATION,
+                errors=errors,
+            )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        _LOGGER.info(config_entry)
+        return OptionsFlowHandler(config_entry)
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):

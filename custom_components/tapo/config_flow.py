@@ -108,17 +108,20 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: Optional[dict[str, Any]] = None
     ) -> data_entry_flow.FlowResult:
+        print("<async_step_user> enter...")
         """Handle the initial step."""
         self.hass.data.setdefault(DOMAIN, {})
 
         errors = {}
 
         if user_input is not None:
+            print("<async_step_user> user_input: ", user_input)
             try:
                 tapo_client = await self._try_setup_api(user_input)
                 device_data = await self._get_first_data_from_api(tapo_client)
                 device_id = device_data.device_id
                 await self.async_set_unique_id(device_id)
+                print("<async_step_user> unique_id was set: ", device_id)
                 self._abort_if_unique_id_configured()
                 self.hass.data[DOMAIN][f"{device_id}_api"] = tapo_client
 
@@ -128,6 +131,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_TRACK_DEVICE: user_input.pop(CONF_TRACK_DEVICE, False),
                 }
 
+                print("<async_step_user> create entry now!")
                 if get_short_model(device_data.model) in SUPPORTED_HUB_DEVICE_MODEL:
                     return self.async_create_entry(
                         title=f"Tapo Hub {device_data.friendly_name}",
@@ -156,6 +160,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
                 _LOGGER.exception("Failed to setup %s", str(error), exc_info=True)
 
+        print("<async_step_user> need user input something...")
         return self.async_show_form(
             step_id=STEP_INIT, data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )

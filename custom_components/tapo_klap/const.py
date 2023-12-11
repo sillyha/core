@@ -11,3 +11,4 @@ CONF_ADVANCED_SETTINGS = "advanced_settings"
 DEFAULT_POLLING_RATE_S = 30  # 30 seconds
 
 STEP_INIT = "user"
+STEP_ADVANCED_SETTINGS = "advanced_config"

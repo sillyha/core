@@ -8,6 +8,7 @@ To use this component you will need to add the following to your configuration.y
 from __future__ import annotations
 
 import datetime
+import logging
 
 import voluptuous as vol
 from plugp100.responses.device_state import DeviceInfo
@@ -25,7 +26,46 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.json import JsonObjectType
 
 from .const import DOMAIN
-from ..tapo import setup_tapo_api, DeviceNotSupported
+from .errors import DeviceNotSupported
+from .setup_helpers import setup_tapo_api
+from .tapo_device import TapoDevice
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType):
+    """Set up the tapo_klap component."""
+    hass.data.setdefault(DOMAIN, {})
+    print("<async_setup>[tapo_klap]")
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up tapo_klap from a config entry."""
+    hass.data.setdefault(DOMAIN, {})
+    try:
+        api = await setup_tapo_api(hass, entry)
+        """
+        state = (
+            (await api.get_device_info()).map(lambda x: DeviceInfo(**x)).get_or_raise()
+        )
+        if get_short_model(state.model) in SUPPORTED_HUB_DEVICE_MODEL:
+            hub = TapoHub(
+                entry,
+                HubDevice(api, subscription_polling_interval_millis=30_000),
+            )
+            return await hub.initialize_hub(hass)
+        else:
+            device = TapoDevice(entry, api)
+            return await device.initialize_device(hass)
+        """
+        device = TapoDevice(entry, api)
+        return await device.initialize_device(hass)
+    except DeviceNotSupported as error:
+        raise error
+    except Exception as error:
+        raise ConfigEntryNotReady from error
+
 
 '''
 ATTR_NAME = "name"
@@ -78,37 +118,3 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Return boolean to indicate that initialization was successfully.
     return True
 '''
-
-
-async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the tapo_klap component."""
-    hass.data.setdefault(DOMAIN, {})
-    print("<async_setup>[tapo_klap]")
-    return True
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up tapo_klap from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-    try:
-        api = await setup_tapo_api(hass, entry)
-        """
-        state = (
-            (await api.get_device_info()).map(lambda x: DeviceInfo(**x)).get_or_raise()
-        )
-        if get_short_model(state.model) in SUPPORTED_HUB_DEVICE_MODEL:
-            hub = TapoHub(
-                entry,
-                HubDevice(api, subscription_polling_interval_millis=30_000),
-            )
-            return await hub.initialize_hub(hass)
-        else:
-            device = TapoDevice(entry, api)
-            return await device.initialize_device(hass)
-        """
-        device = TapoDevice(entry, api)
-        return await device.initialize_device(hass)
-    except DeviceNotSupported as error:
-        raise error
-    except Exception as error:
-        raise ConfigEntryNotReady from error
