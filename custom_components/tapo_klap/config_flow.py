@@ -6,8 +6,12 @@ from typing import Any, Optional
 import aiohttp
 import voluptuous as vol
 from plugp100.api.tapo_client import TapoClient
+from plugp100.common.credentials import AuthCredential
 from plugp100.responses.device_state import DeviceInfo
-from plugp100.responses.tapo_exception import TapoException
+from plugp100.responses.tapo_exception import (
+    TapoException,
+    TapoError,
+)
 
 from custom_components.tapo_klap.const import (
     CONF_HOST,
@@ -26,14 +30,16 @@ from custom_components.tapo_klap.errors import (
     InvalidHost,
 )
 
+from custom_components.tapo_klap.setup_helpers import get_host_port
+
 from homeassistant import (
     config_entries,
     data_entry_flow,
 )
 from homeassistant.const import CONF_SCAN_INTERVAL
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 _LOGGER = logging.getLogger(__name__)  # __name__ 是当前模块名，当模块被直接运行时模块名为 __main__ 。
-
 
 STEP_USER_DATA_SCHEMA = vol.Schema(  # 数据校验器 —— 用户数据
     {
@@ -114,7 +120,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.first_step_data: Optional[FirstStepData] = None
 
     async def async_step_user(
-        self, user_input: Optional[dict[str, Any]] = None
+            self, user_input: Optional[dict[str, Any]] = None
     ) -> data_entry_flow.FlowResult:
         """Handle the initial step."""
         self.hass.data.setdefault(DOMAIN, {})
@@ -172,6 +178,14 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors
         )
 
+    @staticmethod
+    def _raise_from_tapo_exception(exception: TapoException):
+        _LOGGER.error("Tapo exception %s", str(exception.error_code))
+        if exception.error_code == TapoError.INVALID_CREDENTIAL.value:
+            raise InvalidAuth from exception
+        else:
+            raise CannotConnect from exception
+
     async def _try_setup_api(
             self, user_input: Optional[dict[str, Any]] = None
     ) -> TapoClient:
@@ -192,6 +206,19 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._raise_from_tapo_exception(error)
         except (aiohttp.ClientError, Exception) as error:
             raise CannotConnect from error
+
+    async def _get_first_data_from_api(self, tapo_client: TapoClient) -> DeviceInfo:
+        try:
+            return (
+                (await tapo_client.get_device_info())
+                .map(lambda x: DeviceInfo(**x))
+                .get_or_raise()
+            )
+        except TapoException as error:
+            self._raise_from_tapo_exception(error)
+        except (aiohttp.ClientError, Exception) as error:
+            raise CannotConnect from error
+
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
