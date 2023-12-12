@@ -4,6 +4,10 @@ from typing import Optional
 from homeassistant.components.network import Adapter
 
 
+def get_short_model(model: str) -> str:
+    return model.lower().split(maxsplit=1)[0]
+
+
 def get_network_of(adapter: Adapter) -> Optional[str]:
     if len(adapter.get("ipv4")) > 0:
         return f"{adapter.get('ipv4')[0].get('address')}/{adapter.get('ipv4')[0].get('network_prefix')}"

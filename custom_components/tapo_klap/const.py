@@ -12,3 +12,22 @@ DEFAULT_POLLING_RATE_S = 30  # 30 seconds
 
 STEP_INIT = "user"
 STEP_ADVANCED_SETTINGS = "advanced_config"
+
+SUPPORTED_DEVICE_AS_SWITCH = [
+    "p100",
+    "p105",
+    "p110",
+    "p115",
+    "p125",
+    "p125m",
+    "p110m",
+    "tp15",
+    "p100m",
+]
+
+SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
+    "p110",
+    "p115",
+    "p110m",
+    "p125m"
+]

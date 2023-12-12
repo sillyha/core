@@ -3,12 +3,13 @@ from datetime import timedelta
 
 from plugp100.api.tapo_client import TapoClient
 
-from custom_components.tapo_klap.const import DEFAULT_POLLING_RATE_S, CONF_HOST
+from custom_components.tapo_klap.const import DEFAULT_POLLING_RATE_S, CONF_HOST, DOMAIN
+from custom_components.tapo_klap.coordinators import create_coordinator, HassTapoDeviceData
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 
-"""
+
 @dataclass
 class TapoDevice:
     entry: ConfigEntry
@@ -34,4 +35,3 @@ class TapoDevice:
         )
         await hass.config_entries.async_forward_entry_setups(self.entry, PLATFORMS)
         return True
-"""
