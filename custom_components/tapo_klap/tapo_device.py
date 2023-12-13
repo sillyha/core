@@ -3,11 +3,16 @@ from datetime import timedelta
 
 from plugp100.api.tapo_client import TapoClient
 
-from custom_components.tapo_klap.const import DEFAULT_POLLING_RATE_S, CONF_HOST, DOMAIN
+from custom_components.tapo_klap.const import DEFAULT_POLLING_RATE_S, CONF_HOST, DOMAIN, PLATFORMS
 from custom_components.tapo_klap.coordinators import create_coordinator, HassTapoDeviceData
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
+
+
+async def _on_options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Handle options update."""
+    await hass.config_entries.async_reload(config_entry.entry_id)
 
 
 @dataclass

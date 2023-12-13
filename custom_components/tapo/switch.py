@@ -29,6 +29,7 @@ async def async_setup_platform(
     async_add_entities: AddEntitiesCallback,
     discovery_info=None,
 ) -> None:
+    print("<async_setup_platform> enter..")
     coordinator = await setup_from_platform_config(hass, config)
     if isinstance(coordinator, PlugTapoCoordinator):
         async_add_entities([TapoPlugEntity(coordinator)], True)
@@ -37,6 +38,7 @@ async def async_setup_platform(
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
+    print("<switch.py/async_setup_entry> enter..")
     # get tapo helper
     if entry.data.get("is_hub", False):
         await async_setup_hub_switch(hass, entry, async_add_entities)

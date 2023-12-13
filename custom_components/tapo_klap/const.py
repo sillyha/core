@@ -1,4 +1,6 @@
 # The domain of your component. Should be equal to the name of your component.
+from homeassistant.const import Platform
+
 DOMAIN = "tapo_klap"
 
 CONF_HOST = "host"
@@ -31,3 +33,7 @@ SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
     "p110m",
     "p125m"
 ]
+
+PLATFORMS = [Platform.SWITCH, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.LIGHT]
+
+CONF_ALTERNATIVE_IP = "ip_address"
