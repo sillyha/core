@@ -176,6 +176,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_advanced_config(
         self, user_input: Optional[dict[str, Any]] = None
     ) -> data_entry_flow.FlowResult:
+        print("<async_step_advanced_config> enter..")
         errors = {}
         if user_input is not None:
             polling_rate = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_POLLING_RATE_S)
