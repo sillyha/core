@@ -72,6 +72,7 @@ async def connect_tapo_client(
 
 
 async def setup_tapo_api(hass: HomeAssistant, config: ConfigEntry) -> TapoClient:
+    print("<plugp100/common/credentials.py/setup_tapo_api> enter...")
     credential = AuthCredential(
         config.data.get(CONF_USERNAME), config.data.get(CONF_PASSWORD)
     )
@@ -89,6 +90,7 @@ async def setup_tapo_api(hass: HomeAssistant, config: ConfigEntry) -> TapoClient
     else:
         address = config.data.get(CONF_HOST)
 
+    print("<plugp100/common/credentials.py/setup_tapo_api>", "address: ", address)
     return await connect_tapo_client(
         hass,
         credential,

@@ -45,6 +45,7 @@ _LOGGER = logging.getLogger(__name__)  # __name__ 是当前模块名，当模块
 
 STEP_USER_DATA_SCHEMA = vol.Schema(  # 数据校验器 —— 用户数据
     {
+        # 需要输入字符串 #
         vol.Required(
             CONF_HOST,
             description="The IP address of your tapo device (must be static)",
@@ -57,6 +58,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(  # 数据校验器 —— 用户数据
             CONF_PASSWORD,
             description="The password used with Tapo App"
         ): str,
+        # 可选框 #
         vol.Optional(
             CONF_TRACK_DEVICE,
             description="Try to track device dynamic ip using MAC address. (Your HA must be able to access to same "

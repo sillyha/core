@@ -36,12 +36,13 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass: HomeAssistant, config: ConfigType):
     """Set up the tapo_klap component."""
     hass.data.setdefault(DOMAIN, {})
-    print("<async_setup>[tapo_klap]")
+    print("<__init__.py/async_setup>[tapo_klap]")
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up tapo_klap from a config entry."""
+    print("<__init__.py/async_setup_entry>[tapo_klap]")
     hass.data.setdefault(DOMAIN, {})
     try:
         api = await setup_tapo_api(hass, entry)
