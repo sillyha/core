@@ -120,7 +120,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self) -> None:
-        super().__init__()  # ???
+        super().__init__()
         self.first_step_data: Optional[FirstStepData] = None
 
     async def async_step_user(
