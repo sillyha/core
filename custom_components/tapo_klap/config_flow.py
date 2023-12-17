@@ -128,6 +128,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self, user_input: Optional[dict[str, Any]] = None
     ) -> data_entry_flow.FlowResult:
         """Handle the initial step."""
+        print("<config_flow.py/async_step_user>[tapo_klap] enter...")
         self.hass.data.setdefault(DOMAIN, {})
 
         errors = {}
@@ -177,9 +178,11 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     reason="already_configured"
                 )
             except Exception as error:  # pylint: disable=broad-except
+                """任意非系统异常"""
                 errors["base"] = "unknown"
                 _LOGGER.exception("Failed to setup %s", str(error), exc_info=True)
 
+        print("<config_flow.py/async_step_user>[tapo_klap] async_show_form")
         return self.async_show_form(
             step_id=STEP_INIT,
             data_schema=STEP_USER_DATA_SCHEMA,
