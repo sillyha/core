@@ -47,16 +47,16 @@ STEP_USER_DATA_SCHEMA = vol.Schema(  # 数据校验器 —— 用户数据
     {
         # 需要输入字符串 #
         vol.Required(
-            CONF_HOST,
-            description="The IP address of your tapo device (must be static)",
-        ): str,
-        vol.Required(
             CONF_USERNAME,
             description="The username used with Tapo App, so your email"
         ): str,
         vol.Required(
             CONF_PASSWORD,
             description="The password used with Tapo App"
+        ): str,
+        vol.Required(
+            CONF_HOST,
+            description="The IP address of your tapo device (must be static)",
         ): str,
         # 可选框 #
         vol.Optional(
@@ -67,7 +67,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(  # 数据校验器 —— 用户数据
         ): bool,
         vol.Optional(
             CONF_ADVANCED_SETTINGS,
-            description="Advanced settings"
+            description="Advanced settings",
+            default=False,
         ): bool,
     }
 )

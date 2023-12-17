@@ -27,6 +27,7 @@ from homeassistant.util.json import JsonObjectType
 
 from .const import DOMAIN
 from .errors import DeviceNotSupported
+from .migrations import migrate_entry_to_v6
 from .setup_helpers import setup_tapo_api
 from .tapo_device import TapoDevice
 
@@ -66,6 +67,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         raise error
     except Exception as error:
         raise ConfigEntryNotReady from error
+
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+    if config_entry.version != 6:
+        await migrate_entry_to_v6(hass, config_entry)
+
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+
+    return True
 
 
 '''
