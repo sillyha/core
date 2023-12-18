@@ -137,11 +137,13 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 tapo_client = await self._try_setup_api(user_input)
                 device_data = await self._get_first_data_from_api(tapo_client)
+                print("<config_flow.py/async_step_user>[tapo_klap] device_info: ", device_data)
                 device_id = device_data.device_id
                 await self.async_set_unique_id(device_id)
                 self._abort_if_unique_id_configured()
-                """Mark"""
+
                 self.hass.data[DOMAIN][f"{device_id}_api"] = tapo_client
+                # print("<config_flow.py/async_step_user>[tapo_klap] hass.data: ", self.hass.data)
 
                 """user_input: host, username, password"""
                 config_entry_data = user_input | {  # 并集
@@ -149,6 +151,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_SCAN_INTERVAL: DEFAULT_POLLING_RATE_S,
                     CONF_TRACK_DEVICE: user_input.pop(CONF_TRACK_DEVICE, False),
                 }
+                print("<config_flow.py/async_step_user>[tapo_klap] config_entry_data: ", config_entry_data)
 
                 is_hub = False  # for test only
                 if is_hub:  # get_short_model(device_data.model) in SUPPORTED_HUB_DEVICE_MODEL:
@@ -157,11 +160,13 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         data={"is_hub": True, **config_entry_data},
                     )
                 elif user_input.get(CONF_ADVANCED_SETTINGS, False):
+                    print("<config_flow.py/async_step_user>[tapo_klap] advanced_settings selected.")
                     self.first_step_data = FirstStepData(device_data, user_input)
                     return await self.async_step_advanced_config()
                 else:
+                    """如果没有勾选advance_settings"""
                     return self.async_create_entry(
-                        title=device_data.friendly_name,
+                        title=device_data.friendly_name,  # nickname or model
                         data=config_entry_data,
                     )
             except InvalidAuth as error:
@@ -200,6 +205,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _try_setup_api(
             self, user_input: Optional[dict[str, Any]] = None
     ) -> TapoClient:
+        print("<config_flow.py/async_step_user>[tapo_klap] _try_setup_api")
         if not user_input[CONF_HOST]:
             raise InvalidHost
         try:
@@ -231,7 +237,7 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             raise CannotConnect from error
 
     async def async_step_advanced_config(
-        self, user_input: Optional[dict[str, Any]] = None
+            self, user_input: Optional[dict[str, Any]] = None
     ) -> data_entry_flow.FlowResult:
         errors = {}
         if user_input is not None:
@@ -250,10 +256,14 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
+            config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
+        print("<config_flow.py/async_step_user>[tapo_klap] async_get_options_flow")
         _LOGGER.info(config_entry)
         return OptionsFlowHandler(config_entry)
+
+
+"""允许用户修改的配置，以【选项】的形式提供"""
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
@@ -266,21 +276,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     ) -> data_entry_flow.FlowResult:
         """Manage the options."""
         if user_input is not None:
-            """
+            """update config_entry.data, usage shown in part 《Config Entry Migration》"""
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=self.config_entry.data | user_input
             )
-            """
-            return self.async_create_entry(title="", data=user_input)
+            print("<config_flow.py/async_step_user>[tapo_klap] config_entry.data: ", self.config_entry.data)
+            """maybe finsh the flow only"""
+            return self.async_create_entry(title="", data={})
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        "show_things",
-                        default=self.config_entry.options.get("show_things"),
-                    ): bool
-                }
-            ),
+            data_schema=step_options(self.config_entry),
         )

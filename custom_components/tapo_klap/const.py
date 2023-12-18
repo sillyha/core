@@ -25,6 +25,7 @@ SUPPORTED_DEVICE_AS_SWITCH = [
     "p110m",
     "tp15",
     "p100m",
+    "ep25",
 ]
 
 SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
