@@ -37,7 +37,7 @@ async def try_track_ip_address(
     try:
         if adapter is not None:
             target_network = get_network_of(adapter)
-            """本地发现"""
+            """发ARP包，根据设备MAC获取其当前IP。"""
             device = await LocalDeviceFinder.scan_one(mac.replace("-", ":"), target_network, timeout=5)
             return device.get_or_else(last_known_ip)
         else:
@@ -58,11 +58,13 @@ async def connect_tapo_client(
         if f"{unique_id}_api" in hass.data[DOMAIN]
         else None
     )
-    if api is not None:
+
+    if api is not None:  # api created while doing config_flow
         _LOGGER.debug("Re-using setup API to create a coordinator")
     else:
         _LOGGER.debug("Creating new API to create a coordinator for %s", unique_id)
-        session = async_get_clientsession(hass)
+        print("<setup_helpers.py/connect_tapo_client> create new TapoClient")
+        session = async_get_clientsession(hass)  # in config_flow.py --> session = async_create_clientsession(self.hass)
         host, port = get_host_port(ip_address)
         api = TapoClient.create(
             credentials, address=host, port=port, http_session=session
@@ -72,7 +74,7 @@ async def connect_tapo_client(
 
 
 async def setup_tapo_api(hass: HomeAssistant, config: ConfigEntry) -> TapoClient:
-    print("<plugp100/common/credentials.py/setup_tapo_api> enter...")
+    print("<setup_helpers.py/setup_tapo_api> enter...")
     credential = AuthCredential(
         config.data.get(CONF_USERNAME), config.data.get(CONF_PASSWORD)
     )
@@ -90,7 +92,7 @@ async def setup_tapo_api(hass: HomeAssistant, config: ConfigEntry) -> TapoClient
     else:
         address = config.data.get(CONF_HOST)
 
-    print("<plugp100/common/credentials.py/setup_tapo_api>", "address: ", address)
+    print("<setup_helpers.py/setup_tapo_api>", "address: ", address)
     return await connect_tapo_client(
         hass,
         credential,

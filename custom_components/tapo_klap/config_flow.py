@@ -242,9 +242,12 @@ class TapoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             polling_rate = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_POLLING_RATE_S)
+            """ensure if there is MAC in entry_data"""
+            entry_data = self.first_step_data.user_input | {CONF_SCAN_INTERVAL: polling_rate}
+            print("<config_flow.py/async_step_advanced_config> entry_data: ", entry_data)
             return self.async_create_entry(
                 title=self.first_step_data.state.friendly_name,
-                data=self.first_step_data.user_input | {CONF_SCAN_INTERVAL: polling_rate},
+                data=entry_data,
             )
         else:
             return self.async_show_form(

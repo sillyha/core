@@ -49,6 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     print("<__init__.py/async_setup_entry>[tapo_klap]")
     hass.data.setdefault(DOMAIN, {})
     try:
+        """TapoClient: device_info with some api."""
         api = await setup_tapo_api(hass, entry)
         """
         state = (
@@ -74,7 +75,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     print("<__init__.py/async_unload_entry>[tapo_klap] enter...")
-    # Unload a config entry.
+    # Unload a config entry. #
     platform_to_unload = (
         PLATFORMS if not entry.data.get("is_hub", False) else HUB_PLATFORMS
     )

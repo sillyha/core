@@ -26,6 +26,7 @@ class TapoDevice:
         )
 
         host = self.entry.data.get(CONF_HOST)
+
         coordinator = (
             await create_coordinator(hass, self.client, host, polling_rate)
         ).get_or_raise()
