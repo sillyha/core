@@ -35,6 +35,19 @@ SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
     "p125m"
 ]
 
-PLATFORMS = [Platform.SWITCH, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.LIGHT]
+PLATFORMS = [
+    Platform.SWITCH,
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.LIGHT]
+
+HUB_PLATFORMS = [
+    Platform.SIREN,
+    Platform.BINARY_SENSOR,
+    Platform.SENSOR,
+    Platform.SWITCH,
+    Platform.CLIMATE,
+    Platform.NUMBER,
+]
 
 CONF_ALTERNATIVE_IP = "ip_address"

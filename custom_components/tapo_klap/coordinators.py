@@ -13,7 +13,7 @@ from plugp100.common.functional.tri import Try, Failure
 from plugp100.responses.device_state import DeviceInfo as TapoDeviceInfo, PlugDeviceState
 from plugp100.responses.tapo_exception import TapoException, TapoError
 
-from custom_components.tapo_klap import DeviceNotSupported
+from custom_components.tapo_klap.errors import DeviceNotSupported
 from custom_components.tapo_klap.const import SUPPORTED_DEVICE_AS_SWITCH, DOMAIN, \
     SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR
 from custom_components.tapo_klap.helpers import get_short_model

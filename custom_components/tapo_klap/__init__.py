@@ -7,8 +7,10 @@ To use this component you will need to add the following to your configuration.y
 
 from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
+from typing import cast, Optional
 
 import voluptuous as vol
 from plugp100.responses.device_state import DeviceInfo
@@ -25,7 +27,8 @@ from homeassistant.helpers import config_validation as cv, entity_platform, serv
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.util.json import JsonObjectType
 
-from .const import DOMAIN
+from .const import DOMAIN, PLATFORMS, HUB_PLATFORMS
+from .coordinators import HassTapoDeviceData
 from .errors import DeviceNotSupported
 from .migrations import migrate_entry_to_v6
 from .setup_helpers import setup_tapo_api
@@ -69,7 +72,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         raise ConfigEntryNotReady from error
 
 
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    print("<__init__.py/async_unload_entry>[tapo_klap] enter...")
+    # Unload a config entry.
+    platform_to_unload = (
+        PLATFORMS if not entry.data.get("is_hub", False) else HUB_PLATFORMS
+    )
+
+    unload_ok = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, component)
+                for component in platform_to_unload
+            ]
+        )
+    )
+
+    if unload_ok:
+        _LOGGER.info("Unloaded entry for %s", str(entry.entry_id))
+        data = cast(
+            Optional[HassTapoDeviceData], hass.data[DOMAIN].pop(entry.entry_id, None)
+        )
+        if data:
+            data.config_entry_update_unsub()
+
+    return unload_ok
+
+
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    print("<__init__.py/async_migrate_entry>[tapo_klap] enter...")
     """Migrate old entry."""
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
