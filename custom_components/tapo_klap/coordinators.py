@@ -51,7 +51,9 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
             name=DOMAIN,
             update_interval=polling_interval,
             request_refresh_debouncer=Debouncer(
-                hass, _LOGGER, cooldown=DEBOUNCER_COOLDOWN, immediate=True
+                hass, _LOGGER,
+                cooldown=DEBOUNCER_COOLDOWN,  # ??? why
+                immediate=True
             ),
         )
         self._states: StateMap = {}
@@ -136,6 +138,7 @@ class PlugTapoCoordinator(TapoCoordinator):
 async def create_coordinator(
     hass: HomeAssistant, client: TapoClient, host: str, polling_interval: timedelta
 ) -> Try["TapoCoordinator"]:
+    print("<coordinators.py/create_coordinator> do create coordinator...")
     device_info = (await client.get_device_info()).map(lambda x: TapoDeviceInfo(**x))
     if device_info.is_success():
         model = get_short_model(device_info.get().model)

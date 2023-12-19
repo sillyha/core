@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant
 
 async def _on_options_update_listener(hass: HomeAssistant, config_entry: ConfigEntry):
     """Handle options update."""
+    print("<tapo_device.py/_on_options_update_listener> config_entry update!! entry_id: ", config_entry.entry_id)
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
@@ -21,6 +22,7 @@ class TapoDevice:
     client: TapoClient
 
     async def initialize_device(self, hass: HomeAssistant) -> bool:
+        print("<tapo_device.py/initialize_device> enter...")
         polling_rate = timedelta(
             seconds=self.entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_POLLING_RATE_S)
         )
