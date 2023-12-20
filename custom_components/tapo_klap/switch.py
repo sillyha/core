@@ -20,7 +20,7 @@ class TapoPlugEntity(BaseTapoEntity[PlugTapoCoordinator], SwitchEntity):
 
     @property
     def is_on(self) -> Optional[bool]:
-        return self.coordinator.get_state_of(PlugDeviceState).device_on
+        return self.coordinator.get_state_of(PlugDeviceState).device_on  # 注意property仅读取本地状态不进行IO
 
     async def async_turn_on(self, **kwargs):
         (await self.coordinator.device.on()).get_or_raise()
