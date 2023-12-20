@@ -32,8 +32,10 @@ class TapoDevice:
         coordinator = (
             await create_coordinator(hass, self.client, host, polling_rate)
         ).get_or_raise()
+        print("<tapo_device.py/initialize_device> async_config_entry_first_refresh")
         await coordinator.async_config_entry_first_refresh()  # could raise ConfigEntryNotReady
 
+        print("<tapo_device.py/initialize_device> storing --> hass.data[DOMAIN][self.entry.entry_id] = HassTapoDeviceData()")
         hass.data[DOMAIN][self.entry.entry_id] = HassTapoDeviceData(
             coordinator=coordinator,
             config_entry_update_unsub=self.entry.add_update_listener(
@@ -41,5 +43,7 @@ class TapoDevice:
             ),
             child_coordinators=[],
         )
+
+        print("<tapo_device.py/initialize_device> forward config_entry to platforms --> async_forward_entry_setups")
         await hass.config_entries.async_forward_entry_setups(self.entry, PLATFORMS)
         return True

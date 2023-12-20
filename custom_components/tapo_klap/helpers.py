@@ -1,7 +1,11 @@
 import ipaddress
-from typing import Optional
+from typing import Optional, TypeVar
+
+from plugp100.common.functional.tri import Try
 
 from homeassistant.components.network import Adapter
+
+T = TypeVar("T")
 
 
 def get_short_model(model: str) -> str:
@@ -38,3 +42,7 @@ async def find_adapter_for(
                     return adapter
 
     return default_enabled
+
+
+def value_optional(tri: Try[T]) -> Optional[T]:
+    return tri.get() if tri.is_success() else None

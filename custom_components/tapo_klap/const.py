@@ -32,7 +32,8 @@ SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
     "p110",
     "p115",
     "p110m",
-    "p125m"
+    "p125m",
+    "ep25",
 ]
 
 PLATFORMS = [

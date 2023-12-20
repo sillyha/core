@@ -95,7 +95,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
             Optional[HassTapoDeviceData], hass.data[DOMAIN].pop(entry.entry_id, None)
         )
         if data:
-            data.config_entry_update_unsub()
+            data.config_entry_update_unsub()  # unsubscribe listener of config_entry update.
 
     return unload_ok
 

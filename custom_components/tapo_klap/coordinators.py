@@ -11,12 +11,14 @@ from plugp100.api.plug_device import PlugDevice
 from plugp100.api.tapo_client import TapoClient
 from plugp100.common.functional.tri import Try, Failure
 from plugp100.responses.device_state import DeviceInfo as TapoDeviceInfo, PlugDeviceState
+from plugp100.responses.energy_info import EnergyInfo
+from plugp100.responses.power_info import PowerInfo
 from plugp100.responses.tapo_exception import TapoException, TapoError
 
 from custom_components.tapo_klap.errors import DeviceNotSupported
 from custom_components.tapo_klap.const import SUPPORTED_DEVICE_AS_SWITCH, DOMAIN, \
     SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR
-from custom_components.tapo_klap.helpers import get_short_model
+from custom_components.tapo_klap.helpers import get_short_model, value_optional
 from homeassistant.core import HomeAssistant, CALLBACK_TYPE
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.debounce import Debouncer
@@ -44,6 +46,7 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
         device: TapoDevice,
         polling_interval: timedelta,
     ):
+        print("<coordinators.py/TapoCoordinator> init...")
         self._device = device
         super().__init__(
             hass,
@@ -87,7 +90,9 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
 
     async def _async_update_data(self) -> StateMap:
         try:
+            print("<coordinators.py/TapoCoordinator/_async_update_data> trying...")
             async with async_timeout.timeout(10):
+                print("<coordinators.py/TapoCoordinator/_async_update_data> timeout(10)")
                 return await self._update_state()
         except TapoException as error:
             self._raise_from_tapo_exception(error)
@@ -112,6 +117,7 @@ class PlugTapoCoordinator(TapoCoordinator):
         device: PlugDevice,
         polling_interval: timedelta,
     ):
+        print("<coordinators.py/PlugTapoCoordinator> init...")
         super().__init__(hass, device, polling_interval)
 
     @cached_property
@@ -122,17 +128,17 @@ class PlugTapoCoordinator(TapoCoordinator):
         )
 
     async def _update_state(self):
+        print("<coordinators.py/PlugTapoCoordinator> _update_state --> update coordinator._states")
         plug = cast(PlugDevice, self.device)
-        plug_state = (await plug.get_state()).get_or_raise()
+        plug_state = (await plug.get_state()).get_or_raise()  # device_info with plug specified state.
         self.update_state_of(PlugDeviceState, plug_state)
         self.update_state_of(TapoDeviceInfo, plug_state.info)
-        """
+
         if self.has_power_monitor:
             power_info = value_optional(await plug.get_current_power())
             energy_usage = value_optional(await plug.get_energy_usage())
             self.update_state_of(PowerInfo, power_info)
             self.update_state_of(EnergyInfo, energy_usage)
-        """
 
 
 async def create_coordinator(
