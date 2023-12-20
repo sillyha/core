@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from typing import Dict, Any
 
 from plugp100.api.tapo_client import TapoClient
@@ -6,11 +7,12 @@ from plugp100.common.credentials import AuthCredential
 from plugp100.discovery.local_device_finder import LocalDeviceFinder
 
 from custom_components.tapo_klap.const import CONF_USERNAME, CONF_PASSWORD, CONF_TRACK_DEVICE, CONF_MAC, CONF_HOST, \
-    DOMAIN, CONF_ALTERNATIVE_IP
+    DOMAIN, CONF_ALTERNATIVE_IP, DEFAULT_POLLING_RATE_S
 from custom_components.tapo_klap.coordinators import TapoCoordinator, create_coordinator
 from custom_components.tapo_klap.helpers import find_adapter_for, get_network_of
 from homeassistant.components import network
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -104,6 +106,7 @@ async def setup_tapo_api(hass: HomeAssistant, config: ConfigEntry) -> TapoClient
 async def setup_from_platform_config(
     hass: HomeAssistant, config: Dict[str, Any]
 ) -> TapoCoordinator:
+    print("<setup_helpers.py/setup_from_platform_config> enter...")
     temporary_entry = ConfigEntry(
         version=1,
         domain="",
@@ -116,7 +119,12 @@ async def setup_from_platform_config(
         },
         options={CONF_TRACK_DEVICE: config.get(CONF_TRACK_DEVICE, False)},
     )
+
+    print("<setup_helpers.py/setup_from_platform_config> new TapoClient! tmp_entry.uniqueID: ",
+          temporary_entry.unique_id)
     client = await setup_tapo_api(hass, temporary_entry)
+
+    print("<setup_helpers.py/setup_from_platform_config> new coordinator!")
     return await create_coordinator(
         hass,
         client,
