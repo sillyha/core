@@ -33,6 +33,13 @@ class TapoDevice:
             await create_coordinator(hass, self.client, host, polling_rate)
         ).get_or_raise()
         print("<tapo_device.py/initialize_device> async_config_entry_first_refresh")
+        # Fetch initial data so we have data when entities subscribe
+        #
+        # If the refresh fails, async_config_entry_first_refresh will
+        # raise ConfigEntryNotReady and setup will try again later
+        #
+        # If you do not want to retry setup on failure, use
+        # coordinator.async_refresh() instead
         await coordinator.async_config_entry_first_refresh()  # could raise ConfigEntryNotReady
 
         print("<tapo_device.py/initialize_device> storing --> hass.data[DOMAIN][self.entry.entry_id] = HassTapoDeviceData()")

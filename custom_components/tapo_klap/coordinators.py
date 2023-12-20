@@ -51,7 +51,7 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
         super().__init__(
             hass,
             _LOGGER,
-            name=DOMAIN,
+            name=DOMAIN,  # Name of the data. For logging purposes.
             update_interval=polling_interval,
             request_refresh_debouncer=Debouncer(
                 hass, _LOGGER,
@@ -89,7 +89,14 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
         pass
 
     async def _async_update_data(self) -> StateMap:
+        """Fetch data from API endpoint.
+
+        This is the place to pre-process the data to lookup tables
+        so entities can quickly look up their data.
+        """
         try:
+            # Note: asyncio.TimeoutError and aiohttp.ClientError are already
+            # handled by the data update coordinator.
             print("<coordinators.py/TapoCoordinator/_async_update_data> trying...")
             async with async_timeout.timeout(10):
                 print("<coordinators.py/TapoCoordinator/_async_update_data> timeout(10)")
