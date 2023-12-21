@@ -32,11 +32,15 @@ class TapoPlugEntity(BaseTapoEntity[PlugTapoCoordinator], SwitchEntity):
 
 
 async def async_setup_platform(
-    hass: HomeAssistant,
-    config: Dict[str, Any],
-    async_add_entities: AddEntitiesCallback,
-    discovery_info=None,
+        hass: HomeAssistant,
+        config: Dict[str, Any],
+        async_add_entities: AddEntitiesCallback,
+        discovery_info=None,
 ) -> None:
+    """await hass.config_entries.async_forward_entry_setups(self.entry, PLATFORMS)
+
+    for above function called in __init__.py, this function() will not be called.
+    """
     print("<switch.py/async_setup_platform> enter...")
     coordinator = await setup_from_platform_config(hass, config)
     if isinstance(coordinator, PlugTapoCoordinator):
@@ -45,7 +49,7 @@ async def async_setup_platform(
 
 
 async def async_setup_device_switch(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_devices: AddEntitiesCallback
+        hass: HomeAssistant, entry: ConfigEntry, async_add_devices: AddEntitiesCallback
 ):
     print("<switch.py/async_setup_device_switch> enter...")
     data = cast(HassTapoDeviceData, hass.data[DOMAIN][entry.entry_id])
@@ -64,7 +68,7 @@ async def async_setup_device_switch(
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+        hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
     """
     # get tapo helper
