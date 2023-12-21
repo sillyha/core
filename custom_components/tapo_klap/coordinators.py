@@ -69,6 +69,7 @@ class TapoCoordinator(ABC, DataUpdateCoordinator[StateMap]):
         return target_type in self._states
 
     def get_state_of(self, target_type: Type[T]) -> T:
+        print("<coordinators.py/TapoCoordinator> get_state_of, target_type: ", target_type)
         return self._states.get(target_type)
 
     def update_state_of(self, target_type: Type[T], state: Optional[T]) -> StateMap:

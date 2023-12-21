@@ -20,6 +20,7 @@ class TapoPlugEntity(BaseTapoEntity[PlugTapoCoordinator], SwitchEntity):
 
     @property
     def is_on(self) -> Optional[bool]:
+        print("<switch.py/class TapoPlugEntity/def is_on> enter...")
         return self.coordinator.get_state_of(PlugDeviceState).device_on  # 注意property仅读取本地状态不进行IO
 
     async def async_turn_on(self, **kwargs):
@@ -51,10 +52,13 @@ async def async_setup_platform(
 async def async_setup_device_switch(
         hass: HomeAssistant, entry: ConfigEntry, async_add_devices: AddEntitiesCallback
 ):
-    print("<switch.py/async_setup_device_switch> enter...")
+    print("<switch.py/async_setup_device_switch> enter..., entry_id: ", entry.entry_id)
     data = cast(HassTapoDeviceData, hass.data[DOMAIN][entry.entry_id])
     if isinstance(data.coordinator, PlugTapoCoordinator):
+        print("<switch.py/async_setup_device_switch> isinstance --> PlugTapoCoordinator")
         async_add_devices([TapoPlugEntity(data.coordinator)], True)
+    else:
+        print("<switch.py/async_setup_device_switch> NOT isinstance PlugTapoCoordinator")
     """
     elif isinstance(data.coordinator, PowerStripCoordinator):
         async_add_devices(

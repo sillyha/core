@@ -39,5 +39,5 @@ class BaseTapoEntity(CoordinatorEntity[C]):
     @callback
     def _handle_coordinator_update(self) -> None:
         self._base_data = self.coordinator.get_state_of(TapoDeviceInfo)
-        self.async_write_ha_state()
         print("<entity.py/BaseTapoEntity/_handle_coordinator_update> do async_write_ha_state")
+        self.async_write_ha_state()

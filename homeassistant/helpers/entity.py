@@ -482,6 +482,7 @@ class Entity(ABC):
 
     @property
     def state(self) -> StateType:
+        print("<helpers/entity.py/state> Return the state of the entity --> return self._attr_state")
         """Return the state of the entity."""
         return self._attr_state
 
@@ -745,6 +746,7 @@ class Entity(ABC):
         self._async_write_ha_state()
 
     def _stringify_state(self, available: bool) -> str:
+        print("<helpers/entity.py/_stringify_state> Convert state to string...")
         """Convert state to string."""
         if not available:
             return STATE_UNAVAILABLE
@@ -776,6 +778,7 @@ class Entity(ABC):
 
     @callback
     def _async_generate_attributes(self) -> tuple[str, dict[str, Any]]:
+        print("<helpers/entity.py/_async_generate_attributes> enter...")
         """Calculate state string and attribute mapping."""
         entry = self.registry_entry
 
@@ -820,6 +823,7 @@ class Entity(ABC):
 
     @callback
     def _async_write_ha_state(self) -> None:
+        print("<helpers/entity.py/_async_write_ha_state> called.")
         """Write the state to the state machine."""
         if self._platform_state == EntityPlatformState.REMOVED:
             # Polling returned after the entity has already been removed
@@ -827,6 +831,7 @@ class Entity(ABC):
 
         hass = self.hass
         entity_id = self.entity_id
+        print("<helpers/entity.py/_async_write_ha_state> entity_id: ", entity_id)
 
         if (entry := self.registry_entry) and entry.disabled_by:
             if not self._disabled_reported:
@@ -844,6 +849,7 @@ class Entity(ABC):
         start = timer()
         state, attr = self._async_generate_attributes()
         end = timer()
+        print("<helpers/entity.py/_async_write_ha_state> state: ", state, ", attr: ", attr)
 
         if end - start > 0.4 and not self._slow_reported:
             self._slow_reported = True
@@ -868,6 +874,7 @@ class Entity(ABC):
             self._context = None
             self._context_set = None
 
+        print("<helpers/entity.py/_async_write_ha_state> hass.states.async_set...")
         try:
             hass.states.async_set(
                 entity_id,
@@ -1260,6 +1267,7 @@ class ToggleEntity(Entity):
     @property
     @final
     def state(self) -> Literal["on", "off"] | None:
+        print("<helpers/entity.py/class ToggleEntity(Entity)/def state(self)> enter...")
         """Return the state."""
         if (is_on := self.is_on) is None:
             return None
