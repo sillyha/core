@@ -38,10 +38,10 @@ SUPPORTED_DEVICE_AS_SWITCH_POWER_MONITOR = [
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
-    Platform.SENSOR,
     Platform.SWITCH
 ]
 """
+Platform.SENSOR,
 Platform.LIGHT
 """
 
